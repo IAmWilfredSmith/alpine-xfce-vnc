@@ -1,18 +1,18 @@
 ####################################################################################################################################
-#																																											  #
-# Dockerfile - Docker container definition for wilfredsmith/alpine-xfce-vnc													    [Dockerfile] #
-#																																											  #
-# Copyright (c) 2014-2019, Wilfred A. Smith. All rights reserved.																					     #
-#																																											  #
-# Arguments:																																							  #
-#																																											  #
-#	  ADMIN_GROUP - group name for the OS administrotor (default is administrators)												      		  #
-#	  ADMIN_PASSWORD - initial password for the OS administrator (default is insecure). Change this immediately!   					  #
-#	  ADMIN_USERNAME - user name of the OS administrator (default is admin)																		     #
-#	  GEOMETRY - widthxheightxbpp for the virtual display to be exposed (default is 1920x1200x24)											  #
-#	  VNC_LISTENPORT - TCP port on which the VNC server will listen. (default is 5901)															  #
-#    ALPINE_VERSION - specify the version of Alpine to use (default is latest).   																  #
-#																																											  #
+#                                                                                                                                  #
+# Dockerfile - Docker container definition for wilfredsmith/alpine-firefox-vnc                                        [Dockerfile] #
+#                                                                                                                                  #
+# Copyright (c) 2014-2019, Wilfred A. Smith. All rights reserved.                                                                  #
+#                                                                                                                                  #
+# Arguments:                                                                                                                       #
+#                                                                                                                                  #
+#     ADMIN_GROUP - group name for the OS administrotor (default is administrators)                                                #
+#     ADMIN_PASSWORD - initial password for the OS administrator (default is insecure). Change this immediately!                   #
+#     ADMIN_USERNAME - user name of the OS administrator (default is admin)                                                        #
+#     ALPINE_VERSION - specify the version of Alpine to use (default is latest).                                                   #
+#     GEOMETRY - widthxheightxbpp for the virtual display to be exposed (default is 1920x1200x24)                                  #
+#     VNC_LISTENPORT - TCP port on which the VNC server will listen. (default is 5901)                                             #
+#                                                                                                                                  #
 ####################################################################################################################################
 
 ARG ALPINE_VERSION=latest
@@ -31,15 +31,18 @@ RUN echo "Building alpine-base with Alpine $ALPINE_VERSION" && \
 
 RUN echo "http://dl-cdn.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories
 RUN echo "http://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories
+RUN echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories
 
 RUN apk update && \
     apk upgrade && \
-    apk add --no-cache openbox sudo supervisor x11vnc xfce4-terminal xvfb
+    apk add --no-cache openbox sudo supervisor x11vnc xfce4-terminal xvfb dbus firefox openssh-client
 
 RUN addgroup $ADMIN_GROUP
 RUN adduser -G $ADMIN_GROUP -D -s /bin/sh $ADMIN_USERNAME
 RUN echo "$ADMIN_USERNAME:$ADMIN_PASSWORD" | /usr/sbin/chpasswd
 RUN echo "$ADMIN_USERNAME   ALL=(ALL) ALL" >> /etc/sudoers
+
+RUN touch supervisord.conf
 
 RUN echo "[supervisord]" > /etc/supervisord.conf && \
     echo "nodaemon=true" >> /etc/supervisord.conf && \
@@ -67,15 +70,20 @@ RUN echo "[supervisord]" > /etc/supervisord.conf && \
 RUN chmod 755 /etc/supervisord.conf
 
 RUN echo "<?xml version=\"1.0\" encoding=\"utf-8\"?>" > /etc/xdg/openbox/menu.xml && \
-	 echo "<openbox_menu>" >> /etc/xdg/openbox/menu.xml && \
-	 echo "   <menu id=\"root-menu\" label=\"Applications\">" >> /etc/xdg/openbox/menu.xml && \
-	 echo "      <item label=\"Terminal\">" >> /etc/xdg/openbox/menu.xml && \
-	 echo "         <action name=\"Execute\">" >> /etc/xdg/openbox/menu.xml && \
-	 echo "            <command>/usr/bin/xfce4-terminal</command>" >> /etc/xdg/openbox/menu.xml && \
+    echo "<openbox_menu>" >> /etc/xdg/openbox/menu.xml && \
+    echo "   <menu id=\"root-menu\" label=\"Applications\">" >> /etc/xdg/openbox/menu.xml && \
+    echo "      <item label=\"Firefox\">" >> /etc/xdg/openbox/menu.xml && \
+    echo "         <action name=\"Execute\">" >> /etc/xdg/openbox/menu.xml && \
+    echo "            <command>/usr/bin/firefox</command>" >> /etc/xdg/openbox/menu.xml && \
+    echo "         </action>" >> /etc/xdg/openbox/menu.xml && \
+    echo "      </item>" >> /etc/xdg/openbox/menu.xml && \
+    echo "      <item label=\"Terminal\">" >> /etc/xdg/openbox/menu.xml && \
+    echo "         <action name=\"Execute\">" >> /etc/xdg/openbox/menu.xml && \
+    echo "            <command>/usr/bin/xfce4-terminal</command>" >> /etc/xdg/openbox/menu.xml && \
     echo "         </action>" >> /etc/xdg/openbox/menu.xml && \
     echo "      </item>" >> /etc/xdg/openbox/menu.xml && \
     echo "      <separator />" >> /etc/xdg/openbox/menu.xml && \
-	 echo "      <item label=\"Exit session\">" >> /etc/xdg/openbox/menu.xml && \
+    echo "      <item label=\"Exit session\">" >> /etc/xdg/openbox/menu.xml && \
     echo "         <action name=\"Exit\">" >> /etc/xdg/openbox/menu.xml && \
     echo "            <prompt>yes</prompt>" >> /etc/xdg/openbox/menu.xml && \
     echo "         </action>" >> /etc/xdg/openbox/menu.xml && \

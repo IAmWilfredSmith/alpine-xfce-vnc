@@ -15,9 +15,9 @@ Arguments:
 	  ADMIN_GROUP - group name for the OS administrotor (default is administrators)												      		 
 	  ADMIN_PASSWORD - initial password for the OS administrator (default is insecure). Change this immediately!   					 
 	  ADMIN_USERNAME - user name of the OS administrator (default is admin)																		    
+     ALPINE_VERSION - specify the version of Alpine to use (default is latest)   																  
 	  GEOMETRY - widthxheightxbpp for the virtual display to be exposed (default is 1920x1200x24)											 
 	  VNC_LISTENPORT - TCP port on which the VNC server will listen. (default is 5901)															 
-      ALPINE_VERSION - specify the version of Alpine to use (default is latest).   																  
 
 NOTA BENE: You should immediately change the password of the administrative user. The value of these arguments can be retrieved by viewing the history of the Docker image.
 
